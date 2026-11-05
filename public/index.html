@@ -60,6 +60,16 @@
   #menu{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:16px; }
   #menu button{ margin:0; font-size:12px; padding:8px 12px; }
   #menu button.active{ background:var(--fg); color:#000; }
+  /* ruang kosong di bawah supaya konten tidak tertutup badge "Powered by Netlify" */
+  #wrap{ padding-bottom: calc(110px + env(safe-area-inset-bottom,0px)); }
+  @media (max-width:600px){
+    #aiLayout{ flex-direction:column; width:100%; }
+    #aiSidebar{ width:100% !important; flex-direction:row !important; flex-wrap:wrap; }
+    #aiSidebar > button{ flex:1 1 auto; }
+    #chatList{ flex-direction:row !important; flex-wrap:wrap; max-height:none !important; flex-basis:100%; }
+    #chatList button{ max-width:48%; }
+    #aiChat{ max-height:50vh !important; }
+  }
 </style>
 </head>
 <body>
@@ -86,7 +96,7 @@
 
   <div id="aiBox" style="display:none; margin-top:18px;">
     <div style="color:#5f5; font-size:12px; margin-bottom:8px;">🤖 AI Tanya-Jawab — tanya apa saja, bisa kirim gambar</div>
-    <div style="display:flex; gap:10px; align-items:flex-start;">
+    <div id="aiLayout" style="display:flex; gap:10px; align-items:flex-start;">
       <div id="aiSidebar" style="width:110px; flex-shrink:0; display:flex; flex-direction:column; gap:6px;">
         <button id="newChatBtn" style="margin:0; font-size:11px; padding:7px 4px;">+ Chat Baru</button>
         <button id="delChatBtn" style="margin:0; font-size:11px; padding:6px 4px;">🗑 Hapus</button>
