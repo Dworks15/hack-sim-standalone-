@@ -36,17 +36,25 @@ export default async (req) => {
     msgs[msgs.length - 1].parts.unshift({ inline_data: { mime_type: img.media_type, data: img.data } });
   }
 
-  const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+  // Daftar model dicoba berurutan; model yang sudah dihentikan (404) dilewati.
+  const models = [process.env.GEMINI_MODEL, 'gemini-3.8-flash', 'gemini-3.6-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite']
+    .filter(Boolean).filter((m, i, arr) => arr.indexOf(m) === i);
+  const payload = JSON.stringify({
+    systemInstruction: { parts: [{ text: SYSTEM }] },
+    contents: msgs,
+    generationConfig: { maxOutputTokens: 1024 }
+  });
   try {
-    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: SYSTEM }] },
-        contents: msgs,
-        generationConfig: { maxOutputTokens: 1024 }
-      })
-    });
+    let r;
+    for (const model of models) {
+      r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+        body: payload
+      });
+      if (r.status !== 404) break;
+      console.error('Model tidak ditemukan:', model);
+    }
     if (!r.ok) {
       const errText = await r.text().catch(() => '');
       console.error('Gemini error', r.status, errText);
