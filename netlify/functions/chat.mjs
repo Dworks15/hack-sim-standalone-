@@ -58,7 +58,10 @@ export default async (req) => {
     if (!r.ok) {
       const errText = await r.text().catch(() => '');
       console.error('Gemini error', r.status, errText);
-      let msg = 'layanan AI sedang bermasalah';
+      let detail = '';
+      try { detail = (JSON.parse(errText).error || {}).message || ''; } catch {}
+      detail = detail.replace(/\s+/g, ' ').slice(0, 180);
+      let msg = 'layanan AI bermasalah (kode ' + r.status + (detail ? ': ' + detail : '') + ')';
       if (r.status === 429) msg = 'batas penggunaan gratis tercapai, coba lagi sebentar';
       else if (r.status === 401 || r.status === 403 || /API key/i.test(errText)) msg = 'API key server tidak valid';
       else if (r.status === 404) msg = 'model AI tidak ditemukan (cek GEMINI_MODEL)';
